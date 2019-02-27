@@ -1,21 +1,16 @@
 package main;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.Loader;
+//co zrobic gdy oper==0 , wpiszemy liczbe do window i damy plus ? calculate zwraca 0 // implementacja dzielenia!
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.util.ArrayList;
 
 
 public class Calculator extends Application implements EventHandler {
@@ -139,58 +134,41 @@ public class Calculator extends Application implements EventHandler {
             w1 = w2 = oper = 0;
 
         }
-        if (source == beq) {
 
-        }
-
-        if (source == bmin || source == bprod || source == beq || source == badd) {
-            if (window2.getText().length() != 0 && window.getText().length() != 0) {
-                w1 = Double.valueOf(window.getText());
-                window.setText("");
-                w2 = calculate(w2, w1, oper);
-                if (source != beq)
-                    oper = source == badd ? 1 : (source == bmin ? 2 : (source==bprod ? 3 : 0));
-                if (source == bmin)
-                    window2.setText(w2 + "-");
-                else if (source == bprod)
-                    window2.setText(w2 + "*");
-                else if (source == badd)
-                    window2.setText(w2 + "+");
-                else
-                    window2.setText(String.valueOf(w2));
+        if (source == bmin || source == bprod || source == beq || source == badd || source== bdiv ) {
+            //another operation (not first)
+            if (window2.getText().length() != 0 && window.getText().length() != 0 && oper!=0 ) {
+                if(!(oper==4 && Double.valueOf(window.getText())==0)) {
+                    w1 = Double.valueOf(window.getText());
+                    window.setText("");
+                    w2 = calculate(w2, w1, oper);
+                    if (source != beq) {
+                        oper = source == badd ? 1 : (source == bmin ? 2 : (source == bprod ? 3 : (source==bdiv ? 4:0)));
+                        String sing= source==badd ? "+" : (source == bmin ? "-" : (source == bprod ? "*" : "/"));
+                        window2.setText(w2+sing);
+                    }  else
+                        window2.setText(String.valueOf(w2));
+                }
             }
             if (window2.getText().length() == 0 && window.getText().length() != 0) {
-                if (source != beq)
-                    oper = source == badd ? 1 : (source == bmin ? 2 : 3);
                 w2 = Double.valueOf(window.getText());
                 window.setText("");
-                if (source == bmin)
-                    window2.setText(w2 + "-");
-                else if (source == bprod)
-                    window2.setText(w2 + "*");
-                else if (source == badd)
-                    window2.setText(w2 + "+");
-                else
+                if (source != beq) {
+                    oper = source == badd ? 1 : (source == bmin ? 2 : (source == bprod ? 3 : (source==bdiv ? 4:0)));
+                    String sing= source==badd ? "+" : (source == bmin ? "-" : (source == bprod ? "*" : "/"));
+                    window2.setText(w2+sing);
+                }  else
                     window2.setText(String.valueOf(w2));
+
             }
             if (window2.getText().length() != 0 && window.getText().length() == 0) {
                 if(source==beq){
                     window2.setText(String.valueOf(w2));
                     oper=0;
                 }else{
-                    if(oper==0 && source!=beq){
-                        oper = source == badd ? 1 : (source == bmin ? 2 : 3);
-                        String str= oper ==1 ? "+": (oper==2 ? "-" : "*");
-                        window2.setText(window2.getText()+str);
-                    }else if(source!=beq && oper!=0){
-                        oper = source == badd ? 1 : (source == bmin ? 2 : 3);
-                        String str= oper ==1 ? "+": (oper==2 ? "-" : "*");
-                        window2.setText(window2.getText().substring(0, window2.getText().length()-1)+str);
-                    }else if( oper !=0 && source==beq){
-                        oper=0;
-                        window2.setText(window2.getText().substring(0, window2.getText().length()-1));
-                    }
-
+                        oper = source == badd ? 1 : (source == bmin ? 2 : (source == bprod ? 3 : (source==bdiv ? 4:0)));
+                        String str= oper ==1 ? "+": (oper==2 ? "-" : (oper==3 ? "*": "/"));
+                        window2.setText(w2+str);
                 }
             }
 
