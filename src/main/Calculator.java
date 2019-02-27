@@ -21,8 +21,8 @@ public class Calculator extends Application implements EventHandler {
     private Label window=new Label();
     private Label window2=new Label();
     private Button[] buttons=new Button[10];
-    double w1;
-    double w2;
+    double w1,w2, memory;
+
     int oper;
 
     private Button bC= new Button();
@@ -33,14 +33,19 @@ public class Calculator extends Application implements EventHandler {
     private Button bmin= new Button();
     private Button bCE= new Button();
     private Button beq=new Button();
+    private Button bMplus=new Button(); //button to add sth memory
+    private Button bMminus=new Button(); //button to pick out sht from memory
+    private Button bIntegrals=new Button();
+    private Button bMatrix=new Button();
 
     private HBox r1= new HBox();
     private HBox r2= new HBox();
     private HBox r3= new HBox();
     private HBox r4= new HBox();
+    private HBox r5= new HBox();
     @Override
     public void start(Stage primaryStage) throws Exception {
-        vBoxmain.setPrefSize(300, 400);
+        vBoxmain.setPrefSize(260, 400);
         vBoxmain.setSpacing(5);
 
         for(int i =0; i<10; i++){
@@ -87,8 +92,23 @@ public class Calculator extends Application implements EventHandler {
         bdiv.setPrefSize(50,20);
         bdiv.setOnAction(this);
         buttons[0].setPrefSize(105, 20);
-        r4.getChildren().addAll(buttons[0], bpoint, bdiv);
+        bMplus.setText("M+");
+        bMplus.setOnAction(this);
+        bMplus.setPrefSize(50,20);
+        r4.getChildren().addAll(buttons[0], bpoint, bdiv, bMplus);
         r4.setSpacing(5);
+
+        bIntegrals.setText("Integrals");
+        bIntegrals.setPrefSize(215,20);
+        bMminus.setText("M-");
+        bMminus.setPrefSize(50,20);
+        bMminus.setOnAction(this);
+        r5.getChildren().addAll(bIntegrals, bMminus);
+        r5.setSpacing(5);
+
+        bMatrix.setText("Matrices");
+        bMatrix.setPrefSize(270, 40);
+
 
         window.setPrefWidth(210);
         window.setPrefHeight(40);
@@ -97,7 +117,7 @@ public class Calculator extends Application implements EventHandler {
         window2.setPrefHeight(40);
         window2.setAlignment(Pos.CENTER_RIGHT);
 
-        vBoxmain.getChildren().addAll(window2,window, r1, r2, r3, r4);
+        vBoxmain.getChildren().addAll(window2,window, r1, r2, r3, r4, r5, bMatrix);
 
 
 
@@ -105,6 +125,7 @@ public class Calculator extends Application implements EventHandler {
         Stage stage=new Stage();
         stage.setTitle("Calculator");
         stage.setScene(scene);
+        stage.setResizable(false);
 
         stage.show();
     }
@@ -159,7 +180,6 @@ public class Calculator extends Application implements EventHandler {
                     window2.setText(w2+sing);
                 }  else
                     window2.setText(String.valueOf(w2));
-
             }
             if (window2.getText().length() != 0 && window.getText().length() == 0) {
                 if(source==beq){
@@ -171,7 +191,21 @@ public class Calculator extends Application implements EventHandler {
                         window2.setText(w2+str);
                 }
             }
+            if(window2.getText().length()==0 && window.getText().length()==0 && source==bmin){
+                window.setText("-");
+            }
 
+        }
+        if(source==bMplus){
+            if(window2.getText().length()!=0){
+                memory=w2;
+            }else if(window.getText().length()!=0){
+                memory=Double.valueOf(window.getText());
+                window.setText("");
+            }
+        }
+        if(source==bMminus && memory!=0){
+                window.setText(String.valueOf(memory));
         }
     }
 
