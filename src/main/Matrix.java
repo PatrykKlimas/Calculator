@@ -1,23 +1,21 @@
 package main;
 
-
-
 public class Matrix {
     //dimensions of matrix
     private int dimrow, dimcol;
+    public double matrix[][];
 
     //constructor
-    public Matrix(int dimrow, int dimcol) throws Exception {
-        if(dimrow<0 || dimcol<0)
+    public Matrix(int row, int col) throws Exception {
+        if(row<0 || col<0)
             throw new Exception("Invalid dimentions");
         else {
-            this.dimrow = dimrow;
-            this.dimcol = dimcol;
+            this.dimrow = row;
+            this.dimcol = col;
+            matrix=new double[dimrow][dimcol];
         }
-
     }
-    //creation of matrix
-    public double matrix[][]=new double[dimrow][dimcol];
+
     //change of dimensions
     public void setDimensions(int dimrow, int dimcol) throws Exception {
         if(dimrow<0 || dimcol<0 || dimrow>=this.dimrow || dimcol>=this.dimcol)
@@ -38,19 +36,18 @@ public class Matrix {
 
     //method to set values od entries
     public void setEntry(int row, int col, double value) throws Exception {
-        if(dimrow<0 || dimcol<0 || dimrow>=this.dimrow || dimcol>=this.dimcol)
+        if(row<0 || col<0 || dimrow<=row || dimcol<=col) {
             throw new Exception("Matrix out of entry");
-        else
+        }else
             matrix[row][col] = value;
     }
 
     //method to get value of entry
     public double getEntry(int row, int col) throws Exception {
-        if(dimrow<0 || dimcol<0 || dimrow>=this.dimrow || dimcol>=this.dimcol)
+        if(row<0 || col<0 || row>=dimrow || col>=dimcol)
             throw new Exception("Matrix out of entry");
         else
             return matrix[row][col];
-
     }
 
     //definition of inner product
@@ -66,31 +63,27 @@ public class Matrix {
         }
     }
 
-    //matrix transposition
-    public void transpose() throws Exception {
-        double T[][]=new double[dimcol][dimrow];
+    //matrix transposition already tested
+    public void transpose(Matrix m) throws Exception {
+        if(dimcol!=m.getDimrow() || dimrow!=m.getDimcol()){
+            throw new Exception("Wrong dimentions");
+        }
         for(int i=0 ; i<dimrow ;i++){
             for(int j=0; j<dimcol; j++){
-                T[i][j]=matrix[j][i];
+                matrix[i][j]=m.getEntry(j,i);
             }
-            int x=dimcol;
-            dimcol=dimrow;
-            dimrow=x;
-            matrix=T;
         }
+
     }
 
-    //column getter of matrix
-    private Matrix getCol(int n) throws Exception {
-        if(n<0 || n>=dimcol){
+    //column getter of matrix already tested
+    public void getCol(int n, Matrix m) throws Exception {
+        if(n<0 || n>=m.getDimcol() || dimcol>1){
             throw new Exception("No column exist");
         }else {
-            Matrix Col = new Matrix(dimrow, 1);
-            for (int i = 0; i < dimrow; i++) {
-                Col.setEntry(i, 0, matrix[i][n]);
+            for(int i=0 ;i<m.getDimrow(); i++){
+                matrix[i][0]=m.getEntry(i,n);
             }
-            return Col;
         }
     }
-    
 }
