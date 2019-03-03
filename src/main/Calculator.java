@@ -12,18 +12,21 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
-
 public class Calculator extends Application implements EventHandler {
-    public static void main(String[] args){
+    private static void main(String[] args){
         launch(args);
     }
-    private VBox vBoxmain=new VBox();
+    private Stage stage;
+    private Scene matrixScene;
+    private Scene mainscene;
+    private static VBox vBoxmain=new VBox();
+    private static VBox vMatrix=new VBox();
     private Label window=new Label();
     private Label window2=new Label();
     private Button[] buttons=new Button[10];
-    double w1,w2, memory;
+    private double w1,w2, memory;
 
-    int oper;
+    private int oper;
 
     private Button bC= new Button();
     private Button bpoint= new Button();
@@ -37,12 +40,18 @@ public class Calculator extends Application implements EventHandler {
     private Button bMminus=new Button(); //button to pick out sht from memory
     private Button bIntegrals=new Button();
     private Button bMatrix=new Button();
+    private Button back;
+    private Button bdet;
+    private Button btrans;
+    private Button bmproduct;
+
 
     private HBox r1= new HBox();
     private HBox r2= new HBox();
     private HBox r3= new HBox();
     private HBox r4= new HBox();
     private HBox r5= new HBox();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         vBoxmain.setPrefSize(260, 400);
@@ -108,7 +117,7 @@ public class Calculator extends Application implements EventHandler {
 
         bMatrix.setText("Matrices");
         bMatrix.setPrefSize(270, 40);
-
+        bMatrix.setOnAction(this);
 
         window.setPrefWidth(210);
         window.setPrefHeight(40);
@@ -119,15 +128,32 @@ public class Calculator extends Application implements EventHandler {
 
         vBoxmain.getChildren().addAll(window2,window, r1, r2, r3, r4, r5, bMatrix);
 
+        //Matrices
+        back=new Button("Back");
+        back.setPrefSize(240, 30);
+        back.setOnAction(this);
+        bdet=new Button("det(A)");
+        bdet.setPrefSize(240, 30);
+        bdet.setOnAction(this);
+        btrans=new Button("A^T");
+        btrans.setPrefSize(240, 30);
+        btrans.setOnAction(this);
+        bmproduct=new Button("A*B");
+        bmproduct.setPrefSize(240, 30);
+        bmproduct.setOnAction(this);
+        vMatrix.getChildren().addAll(btrans,bdet, bmproduct, back);
+        vMatrix.setPrefSize(240, 300);
+        vMatrix.setSpacing(5);
 
 
-        Scene scene=new Scene(vBoxmain);
-        Stage stage=new Stage();
+
+        mainscene=new Scene(vBoxmain);
+        stage=new Stage();
         stage.setTitle("Calculator");
-        stage.setScene(scene);
+        stage.setScene(mainscene);
         stage.setResizable(false);
-
         stage.show();
+
     }
 
     @Override
@@ -207,6 +233,16 @@ public class Calculator extends Application implements EventHandler {
         if(source==bMminus && memory!=0){
                 window.setText(String.valueOf(memory));
         }
+        if(source==bMatrix){
+            if(matrixScene==null)
+                matrixScene=new Scene(vMatrix);
+            stage.setTitle("Matrices");
+            stage.setScene(matrixScene);
+        }
+        if(source==back){
+            stage.setTitle("Calculator");
+            stage.setScene(mainscene);
+        }
     }
 
 
@@ -243,8 +279,4 @@ public class Calculator extends Application implements EventHandler {
         }
         return -1000;
     }
-
-
-
-
 }
