@@ -1,5 +1,5 @@
 package main;
-//co zrobic gdy oper==0 , wpiszemy liczbe do window i damy plus ? calculate zwraca 0 // implementacja dzielenia!
+
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
