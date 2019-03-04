@@ -1,12 +1,15 @@
 package main;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -17,40 +20,53 @@ public class Calculator extends Application implements EventHandler {
         launch(args);
     }
     private Stage stage;
-    private Scene matrixScene;
+
+    //elements of main scene
     private Scene mainscene;
     private static VBox vBoxmain=new VBox();
-    private static VBox vMatrix=new VBox();
-    private Label window=new Label();
-    private Label window2=new Label();
-    private Button[] buttons=new Button[10];
-    private double w1,w2, memory;
+    private Label window=new Label(); //window to add numbers
+    private Label window2=new Label(); //window to show results
 
+    //necessarily variables
+    private double w1,w2, memory;
     private int oper;
 
-    private Button bC= new Button();
+    private Button[] buttons=new Button[10]; //buttons for numbers
+    private Button bC= new Button(); //button to delete one step
     private Button bpoint= new Button();
-    private Button bprod= new Button();
-    private Button bdiv= new Button();
-    private Button badd= new Button();
-    private Button bmin= new Button();
-    private Button bCE= new Button();
-    private Button beq=new Button();
+    private Button bprod= new Button(); //button to multiply
+    private Button bdiv= new Button(); //button to dividing
+    private Button badd= new Button(); //button to add
+    private Button bmin= new Button(); //button to subtract
+    private Button bCE= new Button(); //button to delete all
+    private Button beq=new Button(); //button to equal
     private Button bMplus=new Button(); //button to add sth memory
     private Button bMminus=new Button(); //button to pick out sht from memory
-    private Button bIntegrals=new Button();
-    private Button bMatrix=new Button();
-    private Button back;
-    private Button bdet;
-    private Button btrans;
-    private Button bmproduct;
-
+    private Button bIntegrals=new Button(); //Integrals menu
+    private Button bMatrix=new Button(); //Button to matrix menu
 
     private HBox r1= new HBox();
     private HBox r2= new HBox();
     private HBox r3= new HBox();
     private HBox r4= new HBox();
     private HBox r5= new HBox();
+
+    //elements of Matrices scene
+    private Scene matrixScene;
+    private static VBox vMatrix=new VBox();
+    private Button back; //back to main menu
+    private Button bdet; //button to calculate determinant
+    private Button btrans; //button to show transposition
+    private Button bmproduct; //button to count product of two matrices
+
+    private Scene detScene; //scene for  determinant
+    private ChoiceBox<String> dim; //dimension of matrix
+    private Button backm;
+    private Button calculate;
+    private TextField[][] entries=new TextField[10][10]; // entries of matrices
+    private VBox matrix=new VBox();
+    private HBox[] rows=new HBox[12];
+    private Label ldim;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -115,8 +131,8 @@ public class Calculator extends Application implements EventHandler {
         r5.getChildren().addAll(bIntegrals, bMminus);
         r5.setSpacing(5);
 
-        bMatrix.setText("Matrices");
-        bMatrix.setPrefSize(270, 40);
+        bMatrix.setText("| 1 2 4 7 | \n| 2 4 8 9 | \n| 3 7 9 1 |");
+        bMatrix.setPrefSize(270, 60);
         bMatrix.setOnAction(this);
 
         window.setPrefWidth(210);
@@ -142,10 +158,43 @@ public class Calculator extends Application implements EventHandler {
         bmproduct.setPrefSize(240, 30);
         bmproduct.setOnAction(this);
         vMatrix.getChildren().addAll(btrans,bdet, bmproduct, back);
-        vMatrix.setPrefSize(240, 300);
-        vMatrix.setSpacing(5);
+        vMatrix.setPrefSize(240, 170);
+        vMatrix.setSpacing(10);
 
+        //Determinants
 
+        dim=new ChoiceBox();
+        dim.getItems().addAll("1","2", "3", "4", "5", "6", "7", "8","9");
+        dim.setPrefSize(50, 30);
+        dim.setOnAction(this);
+
+        ldim=new Label("  Dim: ");
+        ldim.setPrefSize(40, 30);
+        backm=new Button("Back");
+
+        backm.setPrefSize(100, 30);
+        backm.setOnAction(this);
+
+        calculate=new Button("Calculate");
+        calculate.setPrefSize(100,30);
+        rows[0]=new HBox();
+        rows[0].setSpacing(20);
+        rows[0].getChildren().addAll(ldim, dim, backm, calculate);
+        matrix.getChildren().addAll(rows[0]);
+        matrix.setSpacing(10);
+        matrix.setPrefSize(330, 200);
+
+        for(int i=0; i<10;i++){
+            for(int j=0; j<10; j++){
+                entries[i][j]=new TextField();
+                entries[i][j].setPrefSize(30, 30);
+                entries[i][j].setVisible(false);
+            }
+            rows[i+1]=new HBox();
+            rows[i+1].setSpacing(5);
+            rows[i+1].getChildren().addAll(entries[i]);
+            matrix.getChildren().add(rows[i+1]);
+        }
 
         mainscene=new Scene(vBoxmain);
         stage=new Stage();
@@ -158,11 +207,13 @@ public class Calculator extends Application implements EventHandler {
 
     @Override
     public void handle(Event event) {
-        int i;
 
+        //implementing numbers
+        int i;
         if ((i = index(event, buttons, 9)) != -1000) {
             window.setText(window.getText() + i);
         }
+
         Object source = event.getSource();
         i = window.getText().length();
         if (source == bC) {
@@ -233,6 +284,8 @@ public class Calculator extends Application implements EventHandler {
         if(source==bMminus && memory!=0){
                 window.setText(String.valueOf(memory));
         }
+
+        //Matrices
         if(source==bMatrix){
             if(matrixScene==null)
                 matrixScene=new Scene(vMatrix);
@@ -243,6 +296,29 @@ public class Calculator extends Application implements EventHandler {
             stage.setTitle("Calculator");
             stage.setScene(mainscene);
         }
+
+        if(source==bdet){
+            if(detScene==null){
+                detScene=new Scene(matrix);
+            }
+            stage.setTitle("Determinant");
+            stage.setScene(detScene);
+        }
+
+        if(source==backm){
+            stage.setTitle("Matrices");
+            stage.setScene(matrixScene);
+        }
+        if(source==dim){
+            if(dim.getValue()!=null){
+                int k=Integer.valueOf(dim.getValue());
+
+
+                }
+            }
+
+
+
     }
 
 
