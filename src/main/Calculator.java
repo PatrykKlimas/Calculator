@@ -1,5 +1,6 @@
 package main;
 
+import com.sun.javafx.css.Style;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -12,7 +13,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.awt.*;
 
 
 public class Calculator extends Application implements EventHandler {
@@ -66,7 +70,16 @@ public class Calculator extends Application implements EventHandler {
     private TextField[][] entries=new TextField[10][10]; // entries of matrices
     private VBox matrix=new VBox();
     private HBox[] rows=new HBox[12];
-    private Label ldim;
+    private Label ldim, result;
+    private int dimension=0;
+
+    //Transpose
+    private Label lrwos, lcols;
+    private ChoiceBox<Integer> nrows, ncols;
+    private Scene tranScene;
+    private VBox transmatrix;
+    private Button btran;
+    private HBox trasmenu;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -164,7 +177,7 @@ public class Calculator extends Application implements EventHandler {
         //Determinants
 
         dim=new ChoiceBox();
-        dim.getItems().addAll("1","2", "3", "4", "5", "6", "7", "8","9");
+        dim.getItems().addAll("1","2", "3", "4", "5", "6", "7", "8","9","10");
         dim.setPrefSize(50, 30);
         dim.setOnAction(this);
 
@@ -177,17 +190,24 @@ public class Calculator extends Application implements EventHandler {
 
         calculate=new Button("Calculate");
         calculate.setPrefSize(100,30);
+        calculate.setOnAction(this);
         rows[0]=new HBox();
-        rows[0].setSpacing(20);
+        rows[0].setSpacing(40);
         rows[0].getChildren().addAll(ldim, dim, backm, calculate);
         matrix.getChildren().addAll(rows[0]);
         matrix.setSpacing(10);
-        matrix.setPrefSize(330, 200);
-
+        matrix.setPrefSize(500, 230);
+        result=new Label("");
+        result.setPrefSize(500, 30);
+        result.setAlignment(Pos.CENTER);
+        result.setTextFill(Color.RED);
+        rows[11]=new HBox();
+        rows[11].getChildren().addAll(result);
+        matrix.getChildren().add(result);
         for(int i=0; i<10;i++){
             for(int j=0; j<10; j++){
                 entries[i][j]=new TextField();
-                entries[i][j].setPrefSize(30, 30);
+                entries[i][j].setPrefSize(45, 30);
                 entries[i][j].setVisible(false);
             }
             rows[i+1]=new HBox();
@@ -195,6 +215,29 @@ public class Calculator extends Application implements EventHandler {
             rows[i+1].getChildren().addAll(entries[i]);
             matrix.getChildren().add(rows[i+1]);
         }
+
+        //Transpose
+        transmatrix=new VBox();
+        lrwos=new Label("Rows: ");
+        lcols=new Label("Cols: ");
+        lcols.setPrefSize(50,20);
+        lrwos.setPrefSize(50,20);
+
+        nrows=new ChoiceBox<>();
+        ncols=new ChoiceBox<>();
+        nrows.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+        ncols.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+        ncols.setPrefSize(40,20);
+        nrows.setPrefSize(40,20);
+
+        trasmenu=new HBox();
+        trasmenu.setSpacing(10);
+
+        btran=new Button("Calculate");
+
+        trasmenu.getChildren().addAll(lrwos, nrows,lcols, ncols, btran);
+
+
 
         mainscene=new Scene(vBoxmain);
         stage=new Stage();
@@ -303,21 +346,63 @@ public class Calculator extends Application implements EventHandler {
             }
             stage.setTitle("Determinant");
             stage.setScene(detScene);
+
         }
+
 
         if(source==backm){
             stage.setTitle("Matrices");
             stage.setScene(matrixScene);
-        }
-        if(source==dim){
             if(dim.getValue()!=null){
                 int k=Integer.valueOf(dim.getValue());
+                for (int n = 0; n < dimension; n++) {
+                    for (int m = 0; m < dimension; m++) {
+                        entries[n][m].setVisible(false);
+                        entries[n][m].setText("");
+                        result.setText("");
+                    }
+                }
+                dimension=0;
+            }
+        }
 
-
+    if(source==dim) {
+        int deg = Integer.valueOf(dim.getValue());
+        if (deg > dimension) {
+            for (int n = 0; n < deg; n++) {
+                for (int m = 0; m < deg; m++) {
+                    entries[n][m].setVisible(true);
                 }
             }
+        }
+        if (deg < dimension) {
+            for (int n = deg; n < dimension; n++) {
+                for (int m = 0; m < dimension; m++) {
+                    entries[n][m].setVisible(false);
+                    entries[n][m].setText("");
+                    entries[m][n].setVisible(false);
+                    entries[m][n].setText("");
+                }
+            }
+        }
+        dimension = deg;
 
+    }
 
+    if(source==calculate && dim.getValue()!=null){
+        try {
+            Matrix matrix=new Matrix(dimension ,dimension);
+            for(int j=0; j<dimension; j++){
+                for(int m=0; m<dimension; m++){
+                    matrix.setEntry(j,m, Double.valueOf(entries[j][m].getText()) );
+                }
+            }
+            result.setText("Det(A)= " +String.valueOf(matrix.determinant()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     }
 
