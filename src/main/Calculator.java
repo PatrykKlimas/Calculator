@@ -57,12 +57,11 @@ public class Calculator extends Application implements EventHandler {
 
     //elements of Matrices scene
     private Scene matrixScene;
-    private static VBox vMatrix=new VBox();
+    private VBox vMatrix=new VBox();
     private Button back; //back to main menu
     private Button bdet; //button to calculate determinant
     private Button btrans; //button to show transposition
     private Button bmproduct; //button to count product of two matrices
-
     private Scene detScene; //scene for  determinant
     private ChoiceBox<String> dim; //dimension of matrix
     private Button backm;
@@ -75,11 +74,16 @@ public class Calculator extends Application implements EventHandler {
 
     //Transpose
     private Label lrwos, lcols;
+    private int rowsnumber=0;
+    private int colsnumber=0;
     private ChoiceBox<Integer> nrows, ncols;
     private Scene tranScene;
-    private VBox transmatrix;
+    private VBox transmatrix=new VBox();
     private Button btran;
     private HBox trasmenu;
+    private HBox[] transrows=new HBox[10];
+    private Button backtrans;
+    private TextField[][] transentries=new TextField[10][10];
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -217,26 +221,46 @@ public class Calculator extends Application implements EventHandler {
         }
 
         //Transpose
-        transmatrix=new VBox();
+
         lrwos=new Label("Rows: ");
         lcols=new Label("Cols: ");
-        lcols.setPrefSize(50,20);
-        lrwos.setPrefSize(50,20);
+        lcols.setPrefSize(50,30);
+        lrwos.setPrefSize(50,30);
 
         nrows=new ChoiceBox<>();
         ncols=new ChoiceBox<>();
         nrows.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
         ncols.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
-        ncols.setPrefSize(40,20);
-        nrows.setPrefSize(40,20);
+        ncols.setPrefSize(40,30);
+        nrows.setPrefSize(40,30);
+        ncols.setOnAction(this);
+        nrows.setOnAction(this);
 
         trasmenu=new HBox();
         trasmenu.setSpacing(10);
 
         btran=new Button("Calculate");
+        btran.setPrefSize(100, 30);
+        btran.setOnAction(this);
 
-        trasmenu.getChildren().addAll(lrwos, nrows,lcols, ncols, btran);
+        backtrans=new Button("Back");
+        backtrans.setPrefSize(100,30);
+        backtrans.setOnAction(this);
 
+        trasmenu.getChildren().addAll(lrwos, nrows,lcols, ncols, btran, backtrans);
+        transmatrix.getChildren().add(trasmenu);
+        transmatrix.setPrefSize(500, 400);
+        for(int i=0; i<10;i++){
+            for(int j=0; j<10; j++){
+                transentries[i][j]=new TextField();
+                transentries[i][j].setPrefSize(45, 30);
+                transentries[i][j].setVisible(false);
+            }
+            transrows[i]=new HBox();
+            transrows[i].setSpacing(5);
+            transrows[i].getChildren().addAll(transentries[i]);
+            transmatrix.getChildren().add(transrows[i]);
+        }
 
 
         mainscene=new Scene(vBoxmain);
@@ -348,9 +372,16 @@ public class Calculator extends Application implements EventHandler {
             stage.setScene(detScene);
 
         }
+        if(source==btrans){
+            if(tranScene==null){
+                tranScene=new Scene(transmatrix);
+            }
+            stage.setTitle("Transposition");
+            stage.setScene(tranScene);
+        }
 
 
-        if(source==backm){
+        if(source==backm || source==backtrans){
             stage.setTitle("Matrices");
             stage.setScene(matrixScene);
             if(dim.getValue()!=null){
@@ -366,14 +397,14 @@ public class Calculator extends Application implements EventHandler {
             }
         }
 
-    if(source==dim) {
-        int deg = Integer.valueOf(dim.getValue());
-        if (deg > dimension) {
-            for (int n = 0; n < deg; n++) {
-                for (int m = 0; m < deg; m++) {
-                    entries[n][m].setVisible(true);
+        if(source==dim) {
+            int deg = Integer.valueOf(dim.getValue());
+            if (deg > dimension) {
+                for (int n = 0; n < deg; n++) {
+                    for (int m = 0; m < deg; m++) {
+                        entries[n][m].setVisible(true);
+                    }
                 }
-            }
         }
         if (deg < dimension) {
             for (int n = deg; n < dimension; n++) {
@@ -388,6 +419,50 @@ public class Calculator extends Application implements EventHandler {
         dimension = deg;
 
     }
+    if(source==nrows){
+
+        int rows=nrows.getValue();
+        if(colsnumber!=0) {
+            if (rowsnumber < rows) {
+                for (int j = rowsnumber; j < rows; j++) {
+                    for (int n = 0; n < colsnumber; n++) {
+                        transentries[j][n].setVisible(true);
+                    }
+                }
+            }
+            if (rowsnumber > rows) {
+                for (int j = rows; j < rowsnumber; j++) {
+                    for (int n = 0; n < colsnumber; n++) {
+                        System.out.println(j+" "+ n);
+                        transentries[j][n].setVisible(false);
+                    }
+                }
+            }
+        }
+        rowsnumber=rows;
+    }
+        if(source==ncols){
+            int cols=ncols.getValue();
+            System.out.println(cols);
+            if(rowsnumber!=0) {
+                if (colsnumber < cols) {
+                    for (int j = colsnumber; j < cols; j++) {
+                        for (int n = 0; n < rowsnumber; n++) {
+
+                            transentries[n][j].setVisible(true);
+                        }
+                    }
+                }
+                if (colsnumber > cols) {
+                    for (int j = cols; j < colsnumber; j++) {
+                        for (int n = 0; n < rowsnumber; n++) {
+                            transentries[n][j].setVisible(false);
+                        }
+                    }
+                }
+            }
+            colsnumber=cols;
+        }
 
     if(source==calculate && dim.getValue()!=null){
         try {
@@ -402,6 +477,43 @@ public class Calculator extends Application implements EventHandler {
             e.printStackTrace();
         }
 
+    }
+    if(source==btran){
+        int min=Math.min(colsnumber, rowsnumber);
+        String x=" ";
+        for(int j=1; j<min; j++){
+            for(int n=j+1; j<min; j++){
+                x=transentries[j][n].getText();
+                transentries[j][n].setText(transentries[n][j].getText());
+                transentries[n][j].setText(x);
+            }
+        }
+        if(min==colsnumber && colsnumber!=rowsnumber){
+            for(int j=min; j<rowsnumber; j++){
+                for(int k=0; k<min; k++){
+                    transentries[k][j].setText(transentries[j][k].getText());
+                    transentries[j][k].setText("");
+                    transentries[j][k].setVisible(false);
+                    transentries[k][j].setVisible(true);
+
+                }
+            }
+        }else if(min==rowsnumber && colsnumber!=rowsnumber){
+            for(int j=min; j<colsnumber; j++){
+                for(int k=0; k<min; k++){
+                    transentries[j][k].setText(transentries[k][j].getText());
+                    transentries[k][j].setText("");
+                    transentries[k][j].setVisible(false);
+                    transentries[j][k].setVisible(true);
+
+                }
+            }
+        }
+        int m=colsnumber;
+        colsnumber=rowsnumber;
+        rowsnumber=m;
+        nrows.setValue(rowsnumber);
+        ncols.setValue(colsnumber);
     }
 
     }
