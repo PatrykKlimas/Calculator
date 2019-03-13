@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -84,6 +85,24 @@ public class Calculator extends Application implements EventHandler {
     private HBox[] transrows=new HBox[10];
     private Button backtrans;
     private TextField[][] transentries=new TextField[10][10];
+
+    //Product
+    private Label Adims, Bdims;
+    private ChoiceBox<Integer> Arows, Acols, Bcols;
+    private int Arowsnr,Acolsnr, Bcolsnr;
+    private Scene prodScene;
+    private Button backprod, coutproduct, Brows;
+    private HBox prodmenu;
+    private HBox productmatrix=new HBox();
+    private VBox matricesaera=new VBox();
+    private VBox matrixA, matrixB;
+    private TextField[][] Aentries=new TextField[10][10];
+    private TextField[][] Bentries=new TextField[10][10];
+    private HBox[] Atransrows=new HBox[10];
+    private HBox[] Btransrows=new HBox[10];
+    private Label separate=new Label();
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -261,7 +280,73 @@ public class Calculator extends Application implements EventHandler {
             transrows[i].getChildren().addAll(transentries[i]);
             transmatrix.getChildren().add(transrows[i]);
         }
+        transmatrix.setSpacing(5);
 
+        //Product
+        Adims=new Label("Dim A: ");
+        Adims.setPrefSize(50, 30);
+        Bdims=new Label("Dim A: ");
+        Bdims.setPrefSize(50, 30);
+
+        Arows=new ChoiceBox<Integer>();
+        Arows.setPrefSize(50,30);
+
+        Acols=new ChoiceBox<Integer>();
+        Acols.setPrefSize(50,30);
+
+        Bcols=new ChoiceBox<Integer>();
+        Bcols.setPrefSize(50, 30);
+
+        Arows.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+        Acols.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+        Bcols.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
+
+        Brows=new Button("");
+        Brows.setPrefSize(50,30);
+
+        coutproduct=new Button("Calculate");
+        coutproduct.setPrefSize(110, 30);
+
+        backprod=new Button("Back");
+        backprod.setPrefSize(60,30);
+
+        prodmenu=new HBox();
+        prodmenu.setSpacing(5);
+
+        prodmenu.getChildren().addAll(Adims, Arows, Acols, Bdims, Brows, Bcols, coutproduct, backprod);
+
+        matrixA=new VBox();
+        for(int i=0; i<10;i++){
+            for(int j=0; j<10; j++){
+                Aentries[i][j]=new TextField();
+                Aentries[i][j].setPrefSize(45, 30);
+                Aentries[i][j].setVisible(false);
+            }
+            Atransrows[i]=new HBox();
+            Atransrows[i].setSpacing(5);
+            Atransrows[i].getChildren().addAll(Aentries[i]);
+            matrixA.getChildren().add(Atransrows[i]);
+
+        }
+
+        matrixB=new VBox();
+        for(int i=0; i<10;i++){
+            for(int j=0; j<10; j++){
+                Bentries[i][j]=new TextField();
+                Bentries[i][j].setPrefSize(45, 30);
+                Bentries[i][j].setVisible(false);
+            }
+            Btransrows[i]=new HBox();
+            Btransrows[i].setSpacing(5);
+            Btransrows[i].getChildren().addAll(Bentries[i]);
+            matrixB.getChildren().add(Btransrows[i]);
+        }
+        separate.setText("X");
+        productmatrix.getChildren().addAll(matrixA, separate, matrixB);
+
+
+        matricesaera.getChildren().addAll(prodmenu, productmatrix);
+        matricesaera.setPrefSize(800, 400);
 
         mainscene=new Scene(vBoxmain);
         stage=new Stage();
@@ -379,21 +464,23 @@ public class Calculator extends Application implements EventHandler {
             stage.setTitle("Transposition");
             stage.setScene(tranScene);
         }
+        if(source==bmproduct){
+            if(prodScene==null){
+                prodScene=new Scene(matricesaera);
+            }
+            stage.setTitle("Product");
+            stage.setScene(prodScene);
+        }
 
 
         if(source==backm || source==backtrans){
             stage.setTitle("Matrices");
             stage.setScene(matrixScene);
-            if(dim.getValue()!=null){
-                int k=Integer.valueOf(dim.getValue());
-                for (int n = 0; n < dimension; n++) {
-                    for (int m = 0; m < dimension; m++) {
-                        entries[n][m].setVisible(false);
-                        entries[n][m].setText("");
-                        result.setText("");
-                    }
+            for(int j=0; j<10; j++){
+                for(int n=0; n<10; n++){
+                    entries[j][n].setText("");
+                    transentries[j][n].setText("");
                 }
-                dimension=0;
             }
         }
 
@@ -433,7 +520,6 @@ public class Calculator extends Application implements EventHandler {
             if (rowsnumber > rows) {
                 for (int j = rows; j < rowsnumber; j++) {
                     for (int n = 0; n < colsnumber; n++) {
-                        System.out.println(j+" "+ n);
                         transentries[j][n].setVisible(false);
                     }
                 }
@@ -472,7 +558,7 @@ public class Calculator extends Application implements EventHandler {
                     matrix.setEntry(j,m, Double.valueOf(entries[j][m].getText()) );
                 }
             }
-            result.setText("Det(A)= " +String.valueOf(matrix.determinant()));
+            result.setText("Det(A)= " +matrix.determinant());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -481,8 +567,8 @@ public class Calculator extends Application implements EventHandler {
     if(source==btran){
         int min=Math.min(colsnumber, rowsnumber);
         String x=" ";
-        for(int j=1; j<min; j++){
-            for(int n=j+1; j<min; j++){
+        for(int j=0; j<min; j++){
+            for(int n=j+1; n<min; n++){
                 x=transentries[j][n].getText();
                 transentries[j][n].setText(transentries[n][j].getText());
                 transentries[n][j].setText(x);
