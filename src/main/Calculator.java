@@ -3,6 +3,7 @@ package main;
 import com.sun.javafx.css.Style;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -89,7 +90,9 @@ public class Calculator extends Application implements EventHandler {
     //Product
     private Label Adims, Bdims;
     private ChoiceBox<Integer> Arows, Acols, Bcols;
-    private int Arowsnr,Acolsnr, Bcolsnr;
+    private int Arowsnr=0;
+    private int Acolsnr=0;
+    private int Bcolsnr=0;
     private Scene prodScene;
     private Button backprod, coutproduct, Brows;
     private HBox prodmenu;
@@ -290,12 +293,15 @@ public class Calculator extends Application implements EventHandler {
 
         Arows=new ChoiceBox<Integer>();
         Arows.setPrefSize(50,30);
+        Arows.setOnAction(this);
 
         Acols=new ChoiceBox<Integer>();
         Acols.setPrefSize(50,30);
+        Acols.setOnAction(this);
 
         Bcols=new ChoiceBox<Integer>();
         Bcols.setPrefSize(50, 30);
+        Bcols.setOnAction(this);
 
         Arows.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
         Acols.getItems().addAll(1,2,3,4,5,6,7,8,9,10);
@@ -306,9 +312,11 @@ public class Calculator extends Application implements EventHandler {
 
         coutproduct=new Button("Calculate");
         coutproduct.setPrefSize(110, 30);
+        coutproduct.setOnAction(this);
 
         backprod=new Button("Back");
         backprod.setPrefSize(60,30);
+        backprod.setOnAction(this);
 
         prodmenu=new HBox();
         prodmenu.setSpacing(5);
@@ -341,7 +349,8 @@ public class Calculator extends Application implements EventHandler {
             Btransrows[i].getChildren().addAll(Bentries[i]);
             matrixB.getChildren().add(Btransrows[i]);
         }
-        separate.setText("X");
+        separate.setText("\n \n \n \n \n \nX");
+
         productmatrix.getChildren().addAll(matrixA, separate, matrixB);
 
 
@@ -473,13 +482,15 @@ public class Calculator extends Application implements EventHandler {
         }
 
 
-        if(source==backm || source==backtrans){
+        if(source==backm || source==backtrans || source==backprod){
             stage.setTitle("Matrices");
             stage.setScene(matrixScene);
             for(int j=0; j<10; j++){
                 for(int n=0; n<10; n++){
                     entries[j][n].setText("");
                     transentries[j][n].setText("");
+                    Bentries[j][n].setText("");
+                    Aentries[j][n].setText("");
                 }
             }
         }
@@ -601,7 +612,124 @@ public class Calculator extends Application implements EventHandler {
         nrows.setValue(rowsnumber);
         ncols.setValue(colsnumber);
     }
+    if(source==Arows){
+        int r=Arows.getValue();
+        if(Acols!=null){
+            if(Arowsnr<r){
+                for(int j=Arowsnr; j<r;j++){
+                    for(int n=0; n<Acolsnr; n++){
+                        Aentries[j][n].setVisible(true);
+                    }
+                }
+            }else if(Arowsnr>r){
+                for(int j=r; j<Arowsnr;j++){
+                    for(int n=0; n<Acolsnr; n++){
+                        Aentries[j][n].setVisible(false);
+                        Aentries[j][n].setText("");
+                    }
+                }
+            }
+        }
+        Arowsnr=r;
+    }
+        if(source==Acols){
+            int c=Acols.getValue();
+            if(Arows!=null){
+                if(Acolsnr<c){
+                    for(int j=Acolsnr; j<c;j++){
+                        for(int n=0; n<Arowsnr; n++){
+                            Aentries[n][j].setVisible(true);
 
+                        }
+                    }
+                    if(Bcols!=null){
+                        for(int j=Acolsnr; j<c; j++){
+                            for(int n=0; n<Bcolsnr; n++){
+                                Bentries[j][n].setVisible(true);
+                            }
+                        }
+                    }
+                }else if(Acolsnr>c){
+                    for(int j=c; j<Acolsnr;j++){
+                        for(int n=0; n<Arowsnr; n++){
+                            Aentries[n][j].setVisible(false);
+                            Aentries[n][j].setText("");
+                        }
+                    }
+                    if(Bcols!=null){
+                        for(int j=c; j<Acolsnr; j++){
+                            for(int n=0; n<Bcolsnr; n++){
+                                Bentries[j][n].setVisible(false);
+                                Bentries[j][n].setText("");
+                            }
+                        }
+                    }
+                }
+            }
+            Acolsnr=c;
+            Brows.setText(String.valueOf(c));
+        }
+
+        if(source==Bcols){
+            int c=Bcols.getValue();
+            if(Acols!=null ){
+                if(Bcolsnr<c){
+                    for(int j=Bcolsnr; j<c;j++){
+                        for(int n=0; n<Acolsnr; n++){
+                            Bentries[n][j].setVisible(true);
+                        }
+                    }
+                }else if(Bcolsnr>c){
+                    for(int j=c; j<Bcolsnr;j++){
+                        for(int n=0; n<Acolsnr; n++){
+                            Bentries[n][j].setVisible(false);
+                            Bentries[n][j].setText("");
+                        }
+                    }
+                }
+            }
+            Bcolsnr=c;
+
+        }
+        if(source==coutproduct){
+            try {
+                Matrix A=new Matrix(Arowsnr, Acolsnr);
+                Matrix B=new Matrix(Acolsnr, Bcolsnr);
+                Matrix P=new Matrix(Arowsnr, Bcolsnr);
+                for(int j=0; j<Arowsnr; j++){
+                    for(int n=0; n<Acolsnr; n++){
+                        A.setEntry(j,n, Double.valueOf(Aentries[j][n].getText()));
+                        Aentries[j][n].setText("");
+                        Aentries[j][n].setVisible(false);
+                    }
+                }
+                for(int j=0; j<Acolsnr; j++){
+                    for(int n=0; n<Bcolsnr; n++){
+                        B.setEntry(j,n, Double.valueOf(Bentries[j][n].getText()));
+                        Bentries[j][n].setText("");
+                        Bentries[j][n].setVisible(false);
+
+
+                    }
+                }
+                Bcolsnr=0;
+                P.product(A,B);
+                Arows.setValue(P.getDimrow());
+                Acols.setValue(P.getDimcol());
+                Acolsnr=P.getDimcol();
+                for(int j=0; j<P.getDimrow(); j++){
+                    for(int n=0; n<P.getDimcol(); n++){
+                        Aentries[j][n].setVisible(true);
+                        Aentries[j][n].setText(String.valueOf(P.getEntry(j,n)));
+                    }
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
 
