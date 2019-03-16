@@ -1,9 +1,7 @@
 package main;
 
-import com.sun.javafx.css.Style;
+
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -12,13 +10,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.awt.*;
 
 
 public class Calculator extends Application implements EventHandler {
@@ -48,7 +44,7 @@ public class Calculator extends Application implements EventHandler {
     private Button beq=new Button(); //button to equal
     private Button bMplus=new Button(); //button to add sth memory
     private Button bMminus=new Button(); //button to pick out sht from memory
-    private Button bIntegrals=new Button(); //Integrals menu
+    private Button bLogs=new Button(); //Integrals menu
     private Button bMatrix=new Button(); //Button to matrix menu
 
     private HBox r1= new HBox();
@@ -56,6 +52,15 @@ public class Calculator extends Application implements EventHandler {
     private HBox r3= new HBox();
     private HBox r4= new HBox();
     private HBox r5= new HBox();
+
+    //logarithms
+    private Scene Logaritms;
+    private HBox formula=new HBox();
+    private Label log=new Label("log ");
+    private Label logeq=new Label("=");
+    private TextField loga=new TextField();
+    private TextField logb=new TextField();
+    private Button backLog=new Button("Back");
 
     //elements of Matrices scene
     private Scene matrixScene;
@@ -109,7 +114,7 @@ public class Calculator extends Application implements EventHandler {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        vBoxmain.setPrefSize(260, 400);
+        vBoxmain.setPrefSize(260, 260);
         vBoxmain.setSpacing(5);
 
         for(int i =0; i<10; i++){
@@ -162,16 +167,35 @@ public class Calculator extends Application implements EventHandler {
         r4.getChildren().addAll(buttons[0], bpoint, bdiv, bMplus);
         r4.setSpacing(5);
 
-        bIntegrals.setText("Integrals");
-        bIntegrals.setPrefSize(215,20);
+        bLogs.setText("log(...)(...)");
+        bLogs.setPrefSize(215,20);
+        bLogs.setOnAction(this);
+
+
         bMminus.setText("M-");
         bMminus.setPrefSize(50,20);
         bMminus.setOnAction(this);
-        r5.getChildren().addAll(bIntegrals, bMminus);
+        r5.getChildren().addAll(bLogs, bMminus);
         r5.setSpacing(5);
 
-        bMatrix.setText("| 1 2 4 7 | \n| 2 4 8 9 | \n| 3 7 9 1 |");
-        bMatrix.setPrefSize(270, 60);
+        //Logarithms
+        log.setPrefSize(25, 20);
+        loga.setPrefSize(40, 20);
+        loga.setOnAction(this);
+
+        logb.setPrefSize(40, 20);
+        logb.setOnAction(this);
+
+        backLog.setPrefSize(70, 20);
+        backLog.setOnAction(this);
+        formula.getChildren().addAll(backLog, log, loga, logb, logeq);
+        formula.setPrefSize(300, 40);
+        formula.setSpacing(5);
+        logeq.setAlignment( Pos.CENTER_LEFT);
+
+
+        bMatrix.setText("Matrices");
+        bMatrix.setPrefSize(270, 30);
         bMatrix.setOnAction(this);
 
         window.setPrefWidth(210);
@@ -447,6 +471,13 @@ public class Calculator extends Application implements EventHandler {
         }
 
         //Matrices
+        if(source==bLogs){
+            if(Logaritms==null){
+                Logaritms=new Scene(formula);
+            }
+            stage.setTitle("Logarithm");
+            stage.setScene(Logaritms);
+        }
         if(source==bMatrix){
             if(matrixScene==null)
                 matrixScene=new Scene(vMatrix);
@@ -456,6 +487,12 @@ public class Calculator extends Application implements EventHandler {
         if(source==back){
             stage.setTitle("Calculator");
             stage.setScene(mainscene);
+        }
+        if(source==backLog){
+            stage.setTitle("Calculator");
+            stage.setScene(mainscene);
+            loga.setText("");
+            logb.setText("");
         }
 
         if(source==bdet){
@@ -729,6 +766,18 @@ public class Calculator extends Application implements EventHandler {
                 e.printStackTrace();
             }
 
+        }
+        if(source==loga || source==logb){
+            if(!loga.getText().equals("") && !logb.getText().equals("")){
+                try{
+                    double a= Double.valueOf(loga.getText());
+                    double b= Double.valueOf(logb.getText());
+                    double c=Math.log(b)/Math.log(a);
+                    logeq.setText("="+c);
+                }catch( Exception e){
+                    logeq.setText("=error!");
+                }
+            }
         }
     }
 
